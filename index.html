@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+<meta content="#f45f52" name="theme-color"/>
+<title>Turtle Bay AIP Drinks</title>
+<style>
+    :root{
+      --bg:#fff8f5;
+      --card:#ffffff;
+      --ink:#23313a;
+      --muted:#68757d;
+      --accent:#f45f52;
+      --accent-soft:#ffe4df;
+      --line:#eee5e1;
+      --ok:#1f8f5f;
+      --shadow:0 8px 22px rgba(59,41,35,.08);
+    }
+    *{box-sizing:border-box}
+    html{-webkit-text-size-adjust:100%}
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      background:linear-gradient(180deg,#fff 0%,var(--bg) 100%);
+      color:var(--ink);
+      padding-bottom:40px;
+    }
+    .wrap{
+      max-width:760px;
+      margin:0 auto;
+      padding:18px 16px 40px;
+    }
+    .hero{
+      background:linear-gradient(135deg,#f45f52,#ff8b73);
+      color:#fff;
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+      margin-bottom:16px;
+    }
+    .hero h1{
+      margin:0 0 6px;
+      font-size:28px;
+      line-height:1.05;
+    }
+    .hero p{
+      margin:0;
+      opacity:.95;
+      font-size:14px;
+      line-height:1.45;
+    }
+    .summary{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin:14px 0 16px;
+    }
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:14px;
+      box-shadow:0 3px 12px rgba(59,41,35,.05);
+    }
+    .summary-card strong{
+      display:block;
+      font-size:22px;
+      color:var(--accent);
+    }
+    .summary-card span{
+      color:var(--muted);
+      font-size:12px;
+    }
+    .search{
+      position:sticky;
+      top:0;
+      z-index:5;
+      padding:8px 0 12px;
+      background:linear-gradient(180deg,#fff 72%,rgba(255,255,255,0));
+    }
+    .search input{
+      width:100%;
+      border:1px solid #ddd6d2;
+      background:#fff;
+      border-radius:16px;
+      padding:14px 15px;
+      font-size:16px;
+      outline:none;
+      box-shadow:0 3px 14px rgba(59,41,35,.06);
+    }
+    .search input:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 3px rgba(244,95,82,.12);
+    }
+    .category{
+      margin:20px 0 8px;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:#8a6e66;
+    }
+    .drink{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:15px 16px;
+      margin:10px 0;
+      box-shadow:0 4px 14px rgba(59,41,35,.05);
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .drink-main{min-width:0; flex:1}
+    .drink-name{
+      margin:0 0 4px;
+      font-size:17px;
+      font-weight:750;
+      line-height:1.25;
+    }
+    .drink-meta{
+      font-size:13px;
+      color:var(--muted);
+    }
+    .badge{
+      flex:0 0 auto;
+      background:#e8f7ef;
+      color:var(--ok);
+      font-weight:800;
+      font-size:12px;
+      padding:8px 10px;
+      border-radius:999px;
+      white-space:nowrap;
+    }
+    .note{
+      margin-top:22px;
+      background:#fff3df;
+      border:1px solid #f2ddb4;
+      border-radius:18px;
+      padding:15px 16px;
+      color:#6b5733;
+      font-size:13px;
+      line-height:1.5;
+    }
+    .hidden{display:none !important}
+    .empty{
+      text-align:center;
+      color:var(--muted);
+      padding:28px 12px;
+      display:none;
+    }
+    @media (max-width:420px){
+      .hero h1{font-size:25px}
+      .summary{grid-template-columns:1fr}
+      .drink{align-items:flex-start}
+      .badge{margin-top:1px}
+    }
+  
+    .drink-ingredients{
+      margin-top:7px;
+      font-size:13px;
+      line-height:1.45;
+      color:#49565e;
+    }
+
+    .tried-progress{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:14px 15px;
+      margin:0 0 12px;
+      box-shadow:0 3px 12px rgba(59,41,35,.05);
+    }
+    .progress-row{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:12px;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .progress-row strong{
+      color:var(--ink);
+      font-size:20px;
+    }
+    .progress-total{white-space:nowrap}
+    .progress-track{
+      height:8px;
+      border-radius:999px;
+      background:#efe8e4;
+      overflow:hidden;
+      margin-top:9px;
+    }
+    .progress-fill{
+      height:100%;
+      width:0%;
+      background:var(--ok);
+      border-radius:999px;
+      transition:width .2s ease;
+    }
+    .clear-tried{
+      margin-top:10px;
+      border:0;
+      background:transparent;
+      color:var(--accent);
+      font:inherit;
+      font-size:13px;
+      font-weight:700;
+      padding:6px 0;
+      cursor:pointer;
+    }
+    .drink{
+      position:relative;
+    }
+    .drink.tried{
+      background:#f7fbf8;
+      border-color:#cce8da;
+    }
+    .drink.tried .drink-name{
+      text-decoration:line-through;
+      text-decoration-thickness:1.5px;
+      color:#718078;
+    }
+    .tried-control{
+      flex:0 0 auto;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      min-height:44px;
+      padding:6px 4px;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .tried-checkbox{
+      position:absolute;
+      opacity:0;
+      pointer-events:none;
+    }
+    .tried-check{
+      width:28px;
+      height:28px;
+      border-radius:9px;
+      border:2px solid #cfc6c1;
+      background:#fff;
+      display:grid;
+      place-items:center;
+      color:transparent;
+      font-size:17px;
+      font-weight:900;
+      transition:.15s ease;
+    }
+    .tried-text{
+      font-size:12px;
+      font-weight:700;
+      color:var(--muted);
+    }
+    .tried-checkbox:checked + .tried-check{
+      background:var(--ok);
+      border-color:var(--ok);
+      color:#fff;
+    }
+    .tried-checkbox:focus-visible + .tried-check{
+      outline:3px solid rgba(244,95,82,.22);
+      outline-offset:2px;
+    }
+    @media (max-width:520px){
+      .drink{
+        display:grid;
+        grid-template-columns:minmax(0,1fr) auto;
+        align-items:start;
+      }
+      .drink-main{grid-column:1 / -1}
+      .tried-control{
+        grid-column:1;
+        justify-self:start;
+        padding-left:0;
+      }
+      .badge{
+        grid-column:2;
+        align-self:center;
+      }
+    }
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="hero">
+<h1>Turtle Bay AIP Drinks</h1>
+<p>Confirmed drinks showing <strong>Extras: AIP +MUR 0.00</strong>. Ingredients are included where they were visible in the screenshots.</p>
+</section>
+<section class="summary">
+<div class="summary-card">
+<strong>41</strong>
+<span>Confirmed included drinks</span>
+</div>
+<div class="summary-card">
+<strong>MUR 0</strong>
+<span>Extra charge with AIP</span>
+</div>
+</section><section aria-live="polite" class="tried-progress">
+<div class="progress-row">
+<div>
+<strong id="triedCount">0</strong>
+<span> tried</span>
+</div>
+<div class="progress-total"><span id="remainingCount">0</span> left</div>
+</div>
+<div aria-hidden="true" class="progress-track">
+<div class="progress-fill" id="progressFill"></div>
+</div>
+<button class="clear-tried" id="clearTried" type="button">Clear tried drinks</button>
+</section>
+<div class="search">
+<input autocomplete="off" id="searchInput" placeholder="Search drinks or categories…" type="search"/>
+</div>
+<div id="drinkList">
+<div class="category">Signature Cocktails</div>
+<div class="drink" data-drink-id="Crimson" data-search="signature cocktails crimson"><div class="drink-main"><div class="drink-name">Crimson</div><div class="drink-meta">Menu price: MUR 700</div><div class="drink-ingredients">Ingredients: White rum, orange liqueur, pomegranate syrup, cardamom, lime juice</div></div><label class="tried-control" title="Mark Crimson as tried"><input aria-label="Mark Crimson as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Medusa" data-search="signature cocktails medusa"><div class="drink-main"><div class="drink-name">Medusa</div><div class="drink-meta">Menu price: MUR 700</div><div class="drink-ingredients">Ingredients: Dark rum, Malibu, banana liqueur, lime juice, lychee juice</div></div><label class="tried-control" title="Mark Medusa as tried"><input aria-label="Mark Medusa as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="category">Classic Cocktails</div>
+<div class="drink" data-drink-id="Peach Colada" data-search="classic cocktails peach colada"><div class="drink-main"><div class="drink-name">Peach Colada</div><div class="drink-meta">Menu price: MUR 750</div><div class="drink-ingredients">Ingredients: White rum, coconut water, coconut cream, peach juice, condensed milk</div></div><label class="tried-control" title="Mark Peach Colada as tried"><input aria-label="Mark Peach Colada as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Pinacolada" data-search="classic cocktails pinacolada"><div class="drink-main"><div class="drink-name">Pinacolada</div><div class="drink-meta">Menu price: MUR 725</div><div class="drink-ingredients">Ingredients: White rum, coconut water, coconut cream, condensed milk</div></div><label class="tried-control" title="Mark Pinacolada as tried"><input aria-label="Mark Pinacolada as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Malibu Bay Breeze" data-search="classic cocktails malibu bay breeze"><div class="drink-main"><div class="drink-name">Malibu Bay Breeze</div><div class="drink-meta">Menu price: MUR 725</div><div class="drink-ingredients">Ingredients: Malibu, pineapple juice, cranberry juice</div></div><label class="tried-control" title="Mark Malibu Bay Breeze as tried"><input aria-label="Mark Malibu Bay Breeze as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="category">Barman Specialties</div>
+<div class="drink" data-drink-id="Beach Me Up" data-search="barman specialties beach me up"><div class="drink-main"><div class="drink-name">Beach Me Up</div><div class="drink-meta">Menu price: MUR 750</div><div class="drink-ingredients">Ingredients: Malibu, banana liqueur, green melon liqueur, pineapple juice</div></div><label class="tried-control" title="Mark Beach Me Up as tried"><input aria-label="Mark Beach Me Up as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Nut And Sour" data-search="barman specialties nut and sour"><div class="drink-main"><div class="drink-name">Nut And Sour</div><div class="drink-meta">Menu price: MUR 750</div><div class="drink-ingredients">Ingredients: Whisky, amaretto syrup, lemon juice, orange juice</div></div><label class="tried-control" title="Mark Nut And Sour as tried"><input aria-label="Mark Nut And Sour as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Garden Cup" data-search="barman specialties garden cup"><div class="drink-main"><div class="drink-name">Garden Cup</div><div class="drink-meta">Menu price: MUR 750</div><div class="drink-ingredients">Ingredients: Gin, ginger syrup, cucumber, lemon juice</div></div><label class="tried-control" title="Mark Garden Cup as tried"><input aria-label="Mark Garden Cup as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Pestotini" data-search="barman specialties pestotini"><div class="drink-main"><div class="drink-name">Pestotini</div><div class="drink-meta">Menu price: MUR 750</div><div class="drink-ingredients">Ingredients: Rum, passion fruit syrup, lemon juice, basil leaves</div></div><label class="tried-control" title="Mark Pestotini as tried"><input aria-label="Mark Pestotini as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Pirate Bay" data-search="barman specialties pirate bay"><div class="drink-main"><div class="drink-name">Pirate Bay</div><div class="drink-meta">Menu price: MUR 750</div><div class="drink-ingredients">Ingredients: Spiced rum, Malibu, banana liqueur, pineapple juice, orange juice, grenadine syrup</div></div><label class="tried-control" title="Mark Pirate Bay as tried"><input aria-label="Mark Pirate Bay as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="category">Vodka Cocktail</div>
+<div class="drink" data-drink-id="Twilight Martini" data-search="vodka cocktail twilight martini"><div class="drink-main"><div class="drink-name">Twilight Martini</div><div class="drink-meta">Menu price: MUR 770</div><div class="drink-ingredients">Ingredients: Winter-wheat vodka, dry vermouth, lemon oils</div></div><label class="tried-control" title="Mark Twilight Martini as tried"><input aria-label="Mark Twilight Martini as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="category">Gin Creation Cocktails</div>
+<div class="drink" data-drink-id="Southern Sally" data-search="gin creation cocktails southern sally"><div class="drink-main"><div class="drink-name">Southern Sally</div><div class="drink-meta">Menu price: MUR 750</div><div class="drink-ingredients">Ingredients: Gin, elderflower, smoked rosemary, fresh citrus, pineapple juice</div></div><label class="tried-control" title="Mark Southern Sally as tried"><input aria-label="Mark Southern Sally as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Delicious Martini" data-search="gin creation cocktails delicious martini"><div class="drink-main"><div class="drink-name">Delicious Martini</div><div class="drink-meta">Menu price: MUR 770</div><div class="drink-ingredients">Ingredients: London dry gin, cucumber, dill, elderflower, citrus</div></div><label class="tried-control" title="Mark Delicious Martini as tried"><input aria-label="Mark Delicious Martini as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="category">Classical Fusion</div>
+<div class="drink" data-drink-id="Margarita" data-search="classical fusion margarita"><div class="drink-main"><div class="drink-name">Margarita</div><div class="drink-meta">Menu price: MUR 725</div><div class="drink-ingredients">Ingredients: Blanco tequila, orange zest liqueur, fresh lime juice, lemon juice</div></div><label class="tried-control" title="Mark Margarita as tried"><input aria-label="Mark Margarita as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Cosmopolitan" data-search="classical fusion cosmopolitan"><div class="drink-main"><div class="drink-name">Cosmopolitan</div><div class="drink-meta">Menu price: MUR 725</div><div class="drink-ingredients">Ingredients: Vodka, cranberry juice, triple sec, lime</div></div><label class="tried-control" title="Mark Cosmopolitan as tried"><input aria-label="Mark Cosmopolitan as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="category">Non-Alcoholic Cocktails</div>
+<div class="drink" data-drink-id="Mint Cooler" data-search="non-alcoholic cocktails mint cooler"><div class="drink-main"><div class="drink-name">Mint Cooler</div><div class="drink-meta">Menu price: MUR 450</div><div class="drink-ingredients">Ingredients: Fresh lime, mint</div></div><label class="tried-control" title="Mark Mint Cooler as tried"><input aria-label="Mark Mint Cooler as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Wave Bender" data-search="non-alcoholic cocktails wave bender"><div class="drink-main"><div class="drink-name">Wave Bender</div><div class="drink-meta">Menu price: MUR 450</div><div class="drink-ingredients">Ingredients: Orange juice, lemon juice, grenadine syrup, ginger ale</div></div><label class="tried-control" title="Mark Wave Bender as tried"><input aria-label="Mark Wave Bender as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Plantation Pep" data-search="non-alcoholic cocktails plantation pep"><div class="drink-main"><div class="drink-name">Plantation Pep</div><div class="drink-meta">Menu price: MUR 450</div><div class="drink-ingredients">Ingredients: Fresh pineapple, ginger</div></div><label class="tried-control" title="Mark Plantation Pep as tried"><input aria-label="Mark Plantation Pep as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="category">Local Wellness</div>
+<div class="drink" data-drink-id="Pineapple" data-search="local wellness pineapple"><div class="drink-main"><div class="drink-name">Pineapple</div><div class="drink-meta">Menu price: MUR 450</div></div><label class="tried-control" title="Mark Pineapple as tried"><input aria-label="Mark Pineapple as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Curry Leaves Mojito" data-search="local wellness curry leaves mojito"><div class="drink-main"><div class="drink-name">Curry Leaves Mojito</div><div class="drink-meta">Menu price: MUR 450</div></div><label class="tried-control" title="Mark Curry Leaves Mojito as tried"><input aria-label="Mark Curry Leaves Mojito as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Moringa Ice Tea" data-search="local wellness moringa ice tea"><div class="drink-main"><div class="drink-name">Moringa Ice Tea</div><div class="drink-meta">Menu price: MUR 450</div></div><label class="tried-control" title="Mark Moringa Ice Tea as tried"><input aria-label="Mark Moringa Ice Tea as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Panacon" data-search="local wellness panacon"><div class="drink-main"><div class="drink-name">Panacon</div><div class="drink-meta">Menu price: MUR 450</div></div><label class="tried-control" title="Mark Panacon as tried"><input aria-label="Mark Panacon as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="category">Rums of the Island 4cl</div>
+<div class="drink" data-drink-id="Flamboyant Vieux Rum" data-search="rums island flamboyant vieux rum"><div class="drink-main"><div class="drink-name">Flamboyant Vieux Rum</div><div class="drink-meta">Menu price: MUR 525</div></div><label class="tried-control" title="Mark Flamboyant Vieux Rum as tried"><input aria-label="Mark Flamboyant Vieux Rum as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Ti-Rum Dark" data-search="rums island ti-rum dark"><div class="drink-main"><div class="drink-name">Ti-Rum Dark</div><div class="drink-meta">Menu price: MUR 485</div></div><label class="tried-control" title="Mark Ti-Rum Dark as tried"><input aria-label="Mark Ti-Rum Dark as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Green Island" data-search="rums island green island"><div class="drink-main"><div class="drink-name">Green Island</div><div class="drink-meta">Menu price: MUR 485</div></div><label class="tried-control" title="Mark Green Island as tried"><input aria-label="Mark Green Island as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Green Island Spiced Gold" data-search="rums island green island spiced gold"><div class="drink-main"><div class="drink-name">Green Island Spiced Gold</div><div class="drink-meta">Menu price: MUR 480</div></div><label class="tried-control" title="Mark Green Island Spiced Gold as tried"><input aria-label="Mark Green Island Spiced Gold as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Starr African" data-search="rums island starr african"><div class="drink-main"><div class="drink-name">Starr African</div><div class="drink-meta">Menu price: MUR 460</div></div><label class="tried-control" title="Mark Starr African as tried"><input aria-label="Mark Starr African as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Chamarel Gold" data-search="rums island chamarel gold"><div class="drink-main"><div class="drink-name">Chamarel Gold</div><div class="drink-meta">Menu price: MUR 600</div></div><label class="tried-control" title="Mark Chamarel Gold as tried"><input aria-label="Mark Chamarel Gold as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="category">Gin 4cl</div>
+<div class="drink" data-drink-id="Gilbey's" data-search="gin 4cl gilbeys"><div class="drink-main"><div class="drink-name">Gilbey's</div><div class="drink-meta">Menu price: MUR 500</div></div><label class="tried-control" title="Mark Gilbey's as tried"><input aria-label="Mark Gilbey's as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Rover" data-search="gin 4cl rover"><div class="drink-main"><div class="drink-name">Rover</div><div class="drink-meta">Menu price: MUR 400</div></div><label class="tried-control" title="Mark Rover as tried"><input aria-label="Mark Rover as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="category">Tequila 4cl</div>
+<div class="drink" data-drink-id="Don Ruiz" data-search="tequila 4cl don ruiz"><div class="drink-main"><div class="drink-name">Don Ruiz</div><div class="drink-meta">Menu price: MUR 500</div></div><label class="tried-control" title="Mark Don Ruiz as tried"><input aria-label="Mark Don Ruiz as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="category">Scotch Whisky 4cl</div>
+<div class="drink" data-drink-id="Johnnie Walker Red Label" data-search="scotch whisky johnnie walker red label"><div class="drink-main"><div class="drink-name">Johnnie Walker Red Label</div><div class="drink-meta">Menu price: MUR 850</div></div><label class="tried-control" title="Mark Johnnie Walker Red Label as tried"><input aria-label="Mark Johnnie Walker Red Label as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Cambridge" data-search="scotch whisky cambridge"><div class="drink-main"><div class="drink-name">Cambridge</div><div class="drink-meta">Menu price: MUR 430</div></div><label class="tried-control" title="Mark Cambridge as tried"><input aria-label="Mark Cambridge as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="category">Beers</div>
+<div class="drink" data-drink-id="Phoenix Bottle" data-search="beers phoenix bottle"><div class="drink-main"><div class="drink-name">Phoenix Bottle</div><div class="drink-meta">Menu price: MUR 420</div></div><label class="tried-control" title="Mark Phoenix Bottle as tried"><input aria-label="Mark Phoenix Bottle as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Phoenix Draught Small" data-search="beers phoenix draught small"><div class="drink-main"><div class="drink-name">Phoenix Draught Small</div><div class="drink-meta">Menu price: MUR 420</div></div><label class="tried-control" title="Mark Phoenix Draught Small as tried"><input aria-label="Mark Phoenix Draught Small as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Phoenix Draught Large" data-search="beers phoenix draught large"><div class="drink-main"><div class="drink-name">Phoenix Draught Large</div><div class="drink-meta">Menu price: MUR 560</div></div><label class="tried-control" title="Mark Phoenix Draught Large as tried"><input aria-label="Mark Phoenix Draught Large as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Blue Marlin Bottle" data-search="beers blue marlin bottle"><div class="drink-main"><div class="drink-name">Blue Marlin Bottle</div><div class="drink-meta">Menu price: MUR 420</div></div><label class="tried-control" title="Mark Blue Marlin Bottle as tried"><input aria-label="Mark Blue Marlin Bottle as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Thirsty Fox Local" data-search="beers thirsty fox local"><div class="drink-main"><div class="drink-name">Thirsty Fox Local</div><div class="drink-meta">Menu price: MUR 400</div></div><label class="tried-control" title="Mark Thirsty Fox Local as tried"><input aria-label="Mark Thirsty Fox Local as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Thirsty Fox Lager" data-search="beers thirsty fox lager"><div class="drink-main"><div class="drink-name">Thirsty Fox Lager</div><div class="drink-meta">Menu price: MUR 400</div></div><label class="tried-control" title="Mark Thirsty Fox Lager as tried"><input aria-label="Mark Thirsty Fox Lager as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Thirsty Fox Raspberry" data-search="beers thirsty fox raspberry"><div class="drink-main"><div class="drink-name">Thirsty Fox Raspberry</div><div class="drink-meta">Menu price: MUR 400</div></div><label class="tried-control" title="Mark Thirsty Fox Raspberry as tried"><input aria-label="Mark Thirsty Fox Raspberry as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Guinness Bottle" data-search="beers guinness bottle"><div class="drink-main"><div class="drink-name">Guinness Bottle</div><div class="drink-meta">Menu price: MUR 410</div></div><label class="tried-control" title="Mark Guinness Bottle as tried"><input aria-label="Mark Guinness Bottle as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><div class="badge">AIP ✓</div></div>
+</div>
+<div class="empty" id="emptyState">No matching drinks found.</div>
+<div class="note"><strong>Note:</strong> This page contains only drinks visibly marked <strong>+MUR 0.00</strong> under Extras: AIP. Ingredient lists are only shown where the English ingredients were visible in the screenshots; nothing has been guessed. Your tried-drink ticks are saved on this device using localStorage.</div>
+</main>
+
+<script>
+    (() => {
+      const STORAGE_KEY = 'turtleBayAipTriedDrinksV1';
+      const input = document.getElementById('searchInput');
+      const drinks = [...document.querySelectorAll('.drink')];
+      const categories = [...document.querySelectorAll('.category')];
+      const emptyState = document.getElementById('emptyState');
+      const triedCount = document.getElementById('triedCount');
+      const remainingCount = document.getElementById('remainingCount');
+      const progressFill = document.getElementById('progressFill');
+      const clearTried = document.getElementById('clearTried');
+
+      function loadTried() {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+          return new Set(Array.isArray(parsed) ? parsed : []);
+        } catch {
+          return new Set();
+        }
+      }
+
+      let tried = loadTried();
+
+      function saveTried() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify([...tried]));
+        } catch {
+          // The page still works if storage is unavailable.
+        }
+      }
+
+      function refreshCard(card) {
+        const id = card.dataset.drinkId;
+        const checkbox = card.querySelector('.tried-checkbox');
+        const isTried = tried.has(id);
+        checkbox.checked = isTried;
+        card.classList.toggle('tried', isTried);
+      }
+
+      function updateProgress() {
+        const count = drinks.filter(card => tried.has(card.dataset.drinkId)).length;
+        const total = drinks.length;
+        triedCount.textContent = String(count);
+        remainingCount.textContent = String(Math.max(0, total - count));
+        progressFill.style.width = total ? `${Math.round((count / total) * 100)}%` : '0%';
+      }
+
+      drinks.forEach(card => {
+        refreshCard(card);
+        const checkbox = card.querySelector('.tried-checkbox');
+        checkbox.addEventListener('change', () => {
+          const id = card.dataset.drinkId;
+          if (checkbox.checked) tried.add(id);
+          else tried.delete(id);
+          saveTried();
+          refreshCard(card);
+          updateProgress();
+        });
+      });
+
+      function filterDrinks() {
+        const q = input.value.trim().toLowerCase();
+        let visibleCount = 0;
+
+        drinks.forEach(drink => {
+          const match = drink.dataset.search.toLowerCase().includes(q);
+          drink.classList.toggle('hidden', !match);
+          if (match) visibleCount++;
+        });
+
+        categories.forEach(cat => {
+          let el = cat.nextElementSibling;
+          let hasVisible = false;
+          while (el && !el.classList.contains('category')) {
+            if (el.classList.contains('drink') && !el.classList.contains('hidden')) {
+              hasVisible = true;
+              break;
+            }
+            el = el.nextElementSibling;
+          }
+          cat.classList.toggle('hidden', !hasVisible);
+        });
+
+        emptyState.style.display = visibleCount ? 'none' : 'block';
+      }
+
+      input.addEventListener('input', filterDrinks);
+
+      clearTried.addEventListener('click', () => {
+        if (!tried.size) return;
+        const ok = window.confirm('Clear all drinks marked as tried?');
+        if (!ok) return;
+        tried.clear();
+        saveTried();
+        drinks.forEach(refreshCard);
+        updateProgress();
+      });
+
+      updateProgress();
+    })();
+</script></body>
+</html>
