@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+<meta content="#f45f52" name="theme-color"/>
+<title>Turtle Bay AIP Drinks</title>
+<style>
+    :root{
+      --bg:#fff8f5;
+      --card:#ffffff;
+      --ink:#23313a;
+      --muted:#68757d;
+      --accent:#f45f52;
+      --accent-soft:#ffe4df;
+      --line:#eee5e1;
+      --ok:#1f8f5f;
+      --shadow:0 8px 22px rgba(59,41,35,.08);
+    }
+    *{box-sizing:border-box}
+    html{-webkit-text-size-adjust:100%}
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      background:linear-gradient(180deg,#fff 0%,var(--bg) 100%);
+      color:var(--ink);
+      padding-bottom:40px;
+    }
+    .wrap{
+      max-width:760px;
+      margin:0 auto;
+      padding:18px 16px 40px;
+    }
+    .hero{
+      background:linear-gradient(135deg,#f45f52,#ff8b73);
+      color:#fff;
+      border-radius:24px;
+      padding:22px 20px;
+      box-shadow:var(--shadow);
+      margin-bottom:16px;
+    }
+    .hero h1{
+      margin:0 0 6px;
+      font-size:28px;
+      line-height:1.05;
+    }
+    .hero p{
+      margin:0;
+      opacity:.95;
+      font-size:14px;
+      line-height:1.45;
+    }
+    .summary{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin:14px 0 16px;
+    }
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:14px;
+      box-shadow:0 3px 12px rgba(59,41,35,.05);
+    }
+    .summary-card strong{
+      display:block;
+      font-size:22px;
+      color:var(--accent);
+    }
+    .summary-card span{
+      color:var(--muted);
+      font-size:12px;
+    }
+    .search{
+      position:sticky;
+      top:0;
+      z-index:5;
+      padding:8px 0 12px;
+      background:linear-gradient(180deg,#fff 72%,rgba(255,255,255,0));
+    }
+    .search input{
+      width:100%;
+      border:1px solid #ddd6d2;
+      background:#fff;
+      border-radius:16px;
+      padding:14px 15px;
+      font-size:16px;
+      outline:none;
+      box-shadow:0 3px 14px rgba(59,41,35,.06);
+    }
+    .search input:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 3px rgba(244,95,82,.12);
+    }
+    .category{
+      margin:20px 0 8px;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:#8a6e66;
+    }
+    .drink{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:15px 16px;
+      margin:10px 0;
+      box-shadow:0 4px 14px rgba(59,41,35,.05);
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .drink-main{min-width:0; flex:1}
+    .drink-name{
+      margin:0 0 4px;
+      font-size:17px;
+      font-weight:750;
+      line-height:1.25;
+    }
+    .drink-meta{
+      font-size:13px;
+      color:var(--muted);
+    }
+    .badge{
+      flex:0 0 auto;
+      background:#e8f7ef;
+      color:var(--ok);
+      font-weight:800;
+      font-size:12px;
+      padding:8px 10px;
+      border-radius:999px;
+      white-space:nowrap;
+    }
+    .note{
+      margin-top:22px;
+      background:#fff3df;
+      border:1px solid #f2ddb4;
+      border-radius:18px;
+      padding:15px 16px;
+      color:#6b5733;
+      font-size:13px;
+      line-height:1.5;
+    }
+    .hidden{display:none !important}
+    .empty{
+      text-align:center;
+      color:var(--muted);
+      padding:28px 12px;
+      display:none;
+    }
+    @media (max-width:420px){
+      .hero h1{font-size:25px}
+      .summary{grid-template-columns:1fr}
+      .drink{align-items:flex-start}
+      .badge{margin-top:1px}
+    }
+  
+    .drink-ingredients{
+      margin-top:7px;
+      font-size:13px;
+      line-height:1.45;
+      color:#49565e;
+    }
+
+    .tried-progress{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:14px 15px;
+      margin:0 0 12px;
+      box-shadow:0 3px 12px rgba(59,41,35,.05);
+    }
+    .progress-row{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:12px;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .progress-row strong{
+      color:var(--ink);
+      font-size:20px;
+    }
+    .progress-total{white-space:nowrap}
+    .progress-track{
+      height:8px;
+      border-radius:999px;
+      background:#efe8e4;
+      overflow:hidden;
+      margin-top:9px;
+    }
+    .progress-fill{
+      height:100%;
+      width:0%;
+      background:var(--ok);
+      border-radius:999px;
+      transition:width .2s ease;
+    }
+    .clear-tried{
+      margin-top:10px;
+      border:0;
+      background:transparent;
+      color:var(--accent);
+      font:inherit;
+      font-size:13px;
+      font-weight:700;
+      padding:6px 0;
+      cursor:pointer;
+    }
+    .drink{
+      position:relative;
+    }
+    .drink.tried{
+      background:#f7fbf8;
+      border-color:#cce8da;
+    }
+    .drink.tried .drink-name{
+      text-decoration:line-through;
+      text-decoration-thickness:1.5px;
+      color:#718078;
+    }
+    .tried-control{
+      flex:0 0 auto;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      min-height:44px;
+      padding:6px 4px;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .tried-checkbox{
+      position:absolute;
+      opacity:0;
+      pointer-events:none;
+    }
+    .tried-check{
+      width:28px;
+      height:28px;
+      border-radius:9px;
+      border:2px solid #cfc6c1;
+      background:#fff;
+      display:grid;
+      place-items:center;
+      color:transparent;
+      font-size:17px;
+      font-weight:900;
+      transition:.15s ease;
+    }
+    .tried-text{
+      font-size:12px;
+      font-weight:700;
+      color:var(--muted);
+    }
+    .tried-checkbox:checked + .tried-check{
+      background:var(--ok);
+      border-color:var(--ok);
+      color:#fff;
+    }
+    .tried-checkbox:focus-visible + .tried-check{
+      outline:3px solid rgba(244,95,82,.22);
+      outline-offset:2px;
+    }
+    @media (max-width:520px){
+      .drink{
+        display:grid;
+        grid-template-columns:minmax(0,1fr) auto;
+        align-items:start;
+      }
+      .drink-main{grid-column:1 / -1}
+      .tried-control{
+        grid-column:1;
+        justify-self:start;
+        padding-left:0;
+      }
+      .badge{
+        grid-column:2;
+        align-self:center;
+      }
+    }
+
+    .like-fire{
+      flex:0 0 auto;
+      width:44px;
+      height:44px;
+      display:grid;
+      place-items:center;
+      border:0;
+      background:transparent;
+      border-radius:12px;
+      padding:0;
+      font-size:25px;
+      line-height:1;
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+      filter:grayscale(1);
+      opacity:.32;
+      transition:filter .15s ease, opacity .15s ease, transform .15s ease, background .15s ease;
+    }
+    .like-fire[aria-pressed="true"]{
+      filter:grayscale(0);
+      opacity:1;
+      background:#fff1e8;
+    }
+    .like-fire:active{
+      transform:scale(.9);
+    }
+    .like-fire:focus-visible{
+      outline:3px solid rgba(244,95,82,.22);
+      outline-offset:2px;
+    }
+    @media (max-width:520px){
+      .tried-control{
+        grid-column:1;
+      }
+      .like-fire{
+        grid-column:2;
+        grid-row:2;
+        justify-self:end;
+      }
+      .badge{
+        grid-column:2;
+        grid-row:3;
+        justify-self:end;
+      }
+    }
+
+    .filter-pills{
+      display:inline-flex;
+      gap:6px;
+      padding:4px;
+      margin:0 0 10px;
+      background:#f1ebe8;
+      border-radius:999px;
+      border:1px solid var(--line);
+    }
+    .filter-pill{
+      min-height:38px;
+      border:0;
+      border-radius:999px;
+      padding:8px 16px;
+      background:transparent;
+      color:var(--muted);
+      font:inherit;
+      font-size:13px;
+      font-weight:800;
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .filter-pill.active{
+      background:var(--card);
+      color:var(--ink);
+      box-shadow:0 2px 8px rgba(59,41,35,.08);
+    }
+    .filter-pill:focus-visible{
+      outline:3px solid rgba(244,95,82,.22);
+      outline-offset:2px;
+    }
+
+    /* drink-glass-counter */
+    .drink-glasses{
+      display:flex;
+      align-items:center;
+      gap:5px;
+      margin-top:10px;
+      min-height:36px;
+    }
+    .glass-btn{
+      width:34px;
+      height:34px;
+      display:grid;
+      place-items:center;
+      border:0;
+      border-radius:9px;
+      padding:0;
+      background:transparent;
+      font-size:22px;
+      line-height:1;
+      cursor:pointer;
+      filter:grayscale(1);
+      opacity:.22;
+      transition:filter .14s ease,opacity .14s ease,transform .12s ease,background .14s ease;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .glass-btn:disabled{cursor:default}
+    .glass-btn:not(:disabled){opacity:.38}
+    .glass-btn[aria-pressed="true"]{
+      filter:grayscale(0);
+      opacity:1;
+      background:#fff4e8;
+    }
+    .glass-btn:not(:disabled):active{transform:scale(.9)}
+    .glass-btn:focus-visible{
+      outline:3px solid rgba(244,95,82,.22);
+      outline-offset:1px;
+    }
+    @media (max-width:360px){
+      .glass-btn{width:31px;height:31px;font-size:20px}
+      .drink-glasses{gap:3px}
+    }
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="hero">
+<h1>Turtle Bay AIP Drinks</h1>
+<p>Confirmed drinks showing <strong>Extras: AIP +MUR 0.00</strong>. Ingredients are included where they were visible in the screenshots.</p>
+</section>
+<section class="summary">
+<div class="summary-card">
+<strong>42</strong>
+<span>Confirmed included drinks</span>
+</div>
+<div class="summary-card">
+<strong>MUR 0</strong>
+<span>Extra charge with AIP</span>
+</div>
+</section><section aria-live="polite" class="tried-progress">
+<div class="progress-row">
+<div>
+<strong id="triedCount">0</strong>
+<span> tried</span>
+</div>
+<div class="progress-total"><span id="remainingCount">0</span> left</div>
+</div>
+<div aria-hidden="true" class="progress-track">
+<div class="progress-fill" id="progressFill"></div>
+</div>
+<button class="clear-tried" id="clearTried" type="button">Clear tried drinks</button>
+</section>
+<div class="search">
+<input autocomplete="off" id="searchInput" placeholder="Search drinks or categories…" type="search"/>
+</div><div aria-label="Filter drinks" class="filter-pills" role="group">
+<button aria-pressed="true" class="filter-pill active" data-filter="all" type="button">All</button>
+<button aria-pressed="false" class="filter-pill" data-filter="tried" type="button">Tried</button>
+</div>
+<div id="drinkList">
+<div class="category">Signature Cocktails</div>
+<div class="drink" data-drink-id="Crimson" data-search="signature cocktails crimson"><div class="drink-main"><div class="drink-name">Crimson</div><div class="drink-meta">Menu price: MUR 700</div><div class="drink-ingredients">Ingredients: White rum, orange liqueur, pomegranate syrup, cardamom, lime juice</div><div aria-label="Number of Crimson drinks" class="drink-glasses" role="group"><button aria-label="1 Crimson drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Crimson drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Crimson drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Crimson drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Crimson drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Crimson as tried"><input aria-label="Mark Crimson as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Crimson as liked" aria-pressed="false" class="like-fire" title="Like Crimson" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Medusa" data-search="signature cocktails medusa"><div class="drink-main"><div class="drink-name">Medusa</div><div class="drink-meta">Menu price: MUR 700</div><div class="drink-ingredients">Ingredients: Dark rum, Malibu, banana liqueur, lime juice, lychee juice</div><div aria-label="Number of Medusa drinks" class="drink-glasses" role="group"><button aria-label="1 Medusa drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Medusa drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Medusa drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Medusa drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Medusa drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Medusa as tried"><input aria-label="Mark Medusa as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Medusa as liked" aria-pressed="false" class="like-fire" title="Like Medusa" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="category">Classic Cocktails</div>
+<div class="drink" data-drink-id="Peach Colada" data-search="classic cocktails peach colada"><div class="drink-main"><div class="drink-name">Peach Colada</div><div class="drink-meta">Menu price: MUR 750</div><div class="drink-ingredients">Ingredients: White rum, coconut water, coconut cream, peach juice, condensed milk</div><div aria-label="Number of Peach Colada drinks" class="drink-glasses" role="group"><button aria-label="1 Peach Colada drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Peach Colada drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Peach Colada drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Peach Colada drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Peach Colada drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Peach Colada as tried"><input aria-label="Mark Peach Colada as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Peach Colada as liked" aria-pressed="false" class="like-fire" title="Like Peach Colada" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Pinacolada" data-search="classic cocktails pinacolada"><div class="drink-main"><div class="drink-name">Pinacolada</div><div class="drink-meta">Menu price: MUR 725</div><div class="drink-ingredients">Ingredients: White rum, coconut water, coconut cream, condensed milk</div><div aria-label="Number of Pinacolada drinks" class="drink-glasses" role="group"><button aria-label="1 Pinacolada drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Pinacolada drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Pinacolada drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Pinacolada drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Pinacolada drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Pinacolada as tried"><input aria-label="Mark Pinacolada as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Pinacolada as liked" aria-pressed="false" class="like-fire" title="Like Pinacolada" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Malibu Bay Breeze" data-search="classic cocktails malibu bay breeze"><div class="drink-main"><div class="drink-name">Malibu Bay Breeze</div><div class="drink-meta">Menu price: MUR 725</div><div class="drink-ingredients">Ingredients: Malibu, pineapple juice, cranberry juice</div><div aria-label="Number of Malibu Bay Breeze drinks" class="drink-glasses" role="group"><button aria-label="1 Malibu Bay Breeze drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Malibu Bay Breeze drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Malibu Bay Breeze drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Malibu Bay Breeze drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Malibu Bay Breeze drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Malibu Bay Breeze as tried"><input aria-label="Mark Malibu Bay Breeze as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Malibu Bay Breeze as liked" aria-pressed="false" class="like-fire" title="Like Malibu Bay Breeze" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="category">Barman Specialties</div>
+<div class="drink" data-drink-id="Beach Me Up" data-search="barman specialties beach me up"><div class="drink-main"><div class="drink-name">Beach Me Up</div><div class="drink-meta">Menu price: MUR 750</div><div class="drink-ingredients">Ingredients: Malibu, banana liqueur, green melon liqueur, pineapple juice</div><div aria-label="Number of Beach Me Up drinks" class="drink-glasses" role="group"><button aria-label="1 Beach Me Up drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Beach Me Up drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Beach Me Up drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Beach Me Up drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Beach Me Up drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Beach Me Up as tried"><input aria-label="Mark Beach Me Up as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Beach Me Up as liked" aria-pressed="false" class="like-fire" title="Like Beach Me Up" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Nut And Sour" data-search="barman specialties nut and sour"><div class="drink-main"><div class="drink-name">Nut And Sour</div><div class="drink-meta">Menu price: MUR 750</div><div class="drink-ingredients">Ingredients: Whisky, amaretto syrup, lemon juice, orange juice</div><div aria-label="Number of Nut And Sour drinks" class="drink-glasses" role="group"><button aria-label="1 Nut And Sour drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Nut And Sour drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Nut And Sour drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Nut And Sour drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Nut And Sour drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Nut And Sour as tried"><input aria-label="Mark Nut And Sour as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Nut And Sour as liked" aria-pressed="false" class="like-fire" title="Like Nut And Sour" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Garden Cup" data-search="barman specialties garden cup"><div class="drink-main"><div class="drink-name">Garden Cup</div><div class="drink-meta">Menu price: MUR 750</div><div class="drink-ingredients">Ingredients: Gin, ginger syrup, cucumber, lemon juice</div><div aria-label="Number of Garden Cup drinks" class="drink-glasses" role="group"><button aria-label="1 Garden Cup drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Garden Cup drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Garden Cup drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Garden Cup drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Garden Cup drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Garden Cup as tried"><input aria-label="Mark Garden Cup as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Garden Cup as liked" aria-pressed="false" class="like-fire" title="Like Garden Cup" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Pestotini" data-search="barman specialties pestotini"><div class="drink-main"><div class="drink-name">Pestotini</div><div class="drink-meta">Menu price: MUR 750</div><div class="drink-ingredients">Ingredients: Rum, passion fruit syrup, lemon juice, basil leaves</div><div aria-label="Number of Pestotini drinks" class="drink-glasses" role="group"><button aria-label="1 Pestotini drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Pestotini drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Pestotini drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Pestotini drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Pestotini drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Pestotini as tried"><input aria-label="Mark Pestotini as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Pestotini as liked" aria-pressed="false" class="like-fire" title="Like Pestotini" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Pirate Bay" data-search="barman specialties pirate bay"><div class="drink-main"><div class="drink-name">Pirate Bay</div><div class="drink-meta">Menu price: MUR 750</div><div class="drink-ingredients">Ingredients: Spiced rum, Malibu, banana liqueur, pineapple juice, orange juice, grenadine syrup</div><div aria-label="Number of Pirate Bay drinks" class="drink-glasses" role="group"><button aria-label="1 Pirate Bay drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Pirate Bay drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Pirate Bay drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Pirate Bay drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Pirate Bay drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Pirate Bay as tried"><input aria-label="Mark Pirate Bay as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Pirate Bay as liked" aria-pressed="false" class="like-fire" title="Like Pirate Bay" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="category">Vodka Cocktail</div>
+<div class="drink" data-drink-id="Twilight Martini" data-search="vodka cocktail twilight martini"><div class="drink-main"><div class="drink-name">Twilight Martini</div><div class="drink-meta">Menu price: MUR 770</div><div class="drink-ingredients">Ingredients: Winter-wheat vodka, dry vermouth, lemon oils</div><div aria-label="Number of Twilight Martini drinks" class="drink-glasses" role="group"><button aria-label="1 Twilight Martini drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Twilight Martini drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Twilight Martini drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Twilight Martini drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Twilight Martini drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Twilight Martini as tried"><input aria-label="Mark Twilight Martini as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Twilight Martini as liked" aria-pressed="false" class="like-fire" title="Like Twilight Martini" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="category">Gin Creation Cocktails</div>
+<div class="drink" data-drink-id="Southern Sally" data-search="gin creation cocktails southern sally"><div class="drink-main"><div class="drink-name">Southern Sally</div><div class="drink-meta">Menu price: MUR 750</div><div class="drink-ingredients">Ingredients: Gin, elderflower, smoked rosemary, fresh citrus, pineapple juice</div><div aria-label="Number of Southern Sally drinks" class="drink-glasses" role="group"><button aria-label="1 Southern Sally drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Southern Sally drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Southern Sally drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Southern Sally drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Southern Sally drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Southern Sally as tried"><input aria-label="Mark Southern Sally as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Southern Sally as liked" aria-pressed="false" class="like-fire" title="Like Southern Sally" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Delicious Martini" data-search="gin creation cocktails delicious martini"><div class="drink-main"><div class="drink-name">Delicious Martini</div><div class="drink-meta">Menu price: MUR 770</div><div class="drink-ingredients">Ingredients: London dry gin, cucumber, dill, elderflower, citrus</div><div aria-label="Number of Delicious Martini drinks" class="drink-glasses" role="group"><button aria-label="1 Delicious Martini drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Delicious Martini drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Delicious Martini drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Delicious Martini drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Delicious Martini drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Delicious Martini as tried"><input aria-label="Mark Delicious Martini as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Delicious Martini as liked" aria-pressed="false" class="like-fire" title="Like Delicious Martini" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="category">Classical Fusion</div>
+<div class="drink" data-drink-id="Margarita" data-search="classical fusion margarita"><div class="drink-main"><div class="drink-name">Margarita</div><div class="drink-meta">Menu price: MUR 725</div><div class="drink-ingredients">Ingredients: Blanco tequila, orange zest liqueur, fresh lime juice, lemon juice</div><div aria-label="Number of Margarita drinks" class="drink-glasses" role="group"><button aria-label="1 Margarita drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Margarita drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Margarita drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Margarita drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Margarita drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Margarita as tried"><input aria-label="Mark Margarita as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Margarita as liked" aria-pressed="false" class="like-fire" title="Like Margarita" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Cosmopolitan" data-search="classical fusion cosmopolitan"><div class="drink-main"><div class="drink-name">Cosmopolitan</div><div class="drink-meta">Menu price: MUR 725</div><div class="drink-ingredients">Ingredients: Vodka, cranberry juice, triple sec, lime</div><div aria-label="Number of Cosmopolitan drinks" class="drink-glasses" role="group"><button aria-label="1 Cosmopolitan drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Cosmopolitan drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Cosmopolitan drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Cosmopolitan drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Cosmopolitan drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Cosmopolitan as tried"><input aria-label="Mark Cosmopolitan as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Cosmopolitan as liked" aria-pressed="false" class="like-fire" title="Like Cosmopolitan" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="category">Non-Alcoholic Cocktails</div>
+<div class="drink" data-drink-id="Mint Cooler" data-search="non-alcoholic cocktails mint cooler"><div class="drink-main"><div class="drink-name">Mint Cooler</div><div class="drink-meta">Menu price: MUR 450</div><div class="drink-ingredients">Ingredients: Fresh lime, mint</div><div aria-label="Number of Mint Cooler drinks" class="drink-glasses" role="group"><button aria-label="1 Mint Cooler drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Mint Cooler drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Mint Cooler drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Mint Cooler drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Mint Cooler drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Mint Cooler as tried"><input aria-label="Mark Mint Cooler as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Mint Cooler as liked" aria-pressed="false" class="like-fire" title="Like Mint Cooler" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Wave Bender" data-search="non-alcoholic cocktails wave bender"><div class="drink-main"><div class="drink-name">Wave Bender</div><div class="drink-meta">Menu price: MUR 450</div><div class="drink-ingredients">Ingredients: Orange juice, lemon juice, grenadine syrup, ginger ale</div><div aria-label="Number of Wave Bender drinks" class="drink-glasses" role="group"><button aria-label="1 Wave Bender drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Wave Bender drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Wave Bender drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Wave Bender drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Wave Bender drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Wave Bender as tried"><input aria-label="Mark Wave Bender as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Wave Bender as liked" aria-pressed="false" class="like-fire" title="Like Wave Bender" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Plantation Pep" data-search="non-alcoholic cocktails plantation pep"><div class="drink-main"><div class="drink-name">Plantation Pep</div><div class="drink-meta">Menu price: MUR 450</div><div class="drink-ingredients">Ingredients: Fresh pineapple, ginger</div><div aria-label="Number of Plantation Pep drinks" class="drink-glasses" role="group"><button aria-label="1 Plantation Pep drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Plantation Pep drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Plantation Pep drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Plantation Pep drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Plantation Pep drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Plantation Pep as tried"><input aria-label="Mark Plantation Pep as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Plantation Pep as liked" aria-pressed="false" class="like-fire" title="Like Plantation Pep" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="category">Local Wellness</div>
+<div class="drink" data-drink-id="Pineapple Lemongrass" data-search="local wellness pineapple lemongrass"><div class="drink-main"><div class="drink-name">Pineapple Lemongrass</div><div class="drink-meta">Menu price: MUR 450</div><div aria-label="Number of Pineapple Lemongrass drinks" class="drink-glasses" role="group"><button aria-label="1 Pineapple Lemongrass drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Pineapple Lemongrass drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Pineapple Lemongrass drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Pineapple Lemongrass drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Pineapple Lemongrass drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Pineapple Lemongrass as tried"><input aria-label="Mark Pineapple Lemongrass as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Pineapple Lemongrass as liked" aria-pressed="false" class="like-fire" title="Like Pineapple Lemongrass" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Curry Leaves Mojito" data-search="local wellness curry leaves mojito"><div class="drink-main"><div class="drink-name">Curry Leaves Mojito</div><div class="drink-meta">Menu price: MUR 450</div><div aria-label="Number of Curry Leaves Mojito drinks" class="drink-glasses" role="group"><button aria-label="1 Curry Leaves Mojito drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Curry Leaves Mojito drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Curry Leaves Mojito drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Curry Leaves Mojito drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Curry Leaves Mojito drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Curry Leaves Mojito as tried"><input aria-label="Mark Curry Leaves Mojito as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Curry Leaves Mojito as liked" aria-pressed="false" class="like-fire" title="Like Curry Leaves Mojito" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Moringa Ice Tea" data-search="local wellness moringa ice tea"><div class="drink-main"><div class="drink-name">Moringa Ice Tea</div><div class="drink-meta">Menu price: MUR 450</div><div aria-label="Number of Moringa Ice Tea drinks" class="drink-glasses" role="group"><button aria-label="1 Moringa Ice Tea drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Moringa Ice Tea drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Moringa Ice Tea drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Moringa Ice Tea drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Moringa Ice Tea drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Moringa Ice Tea as tried"><input aria-label="Mark Moringa Ice Tea as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Moringa Ice Tea as liked" aria-pressed="false" class="like-fire" title="Like Moringa Ice Tea" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Panacon" data-search="local wellness panacon"><div class="drink-main"><div class="drink-name">Panacon</div><div class="drink-meta">Menu price: MUR 450</div><div aria-label="Number of Panacon drinks" class="drink-glasses" role="group"><button aria-label="1 Panacon drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Panacon drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Panacon drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Panacon drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Panacon drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Panacon as tried"><input aria-label="Mark Panacon as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Panacon as liked" aria-pressed="false" class="like-fire" title="Like Panacon" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="category">Rums of the Island 4cl</div>
+<div class="drink" data-drink-id="Flamboyant Vieux Rum" data-search="rums island flamboyant vieux rum"><div class="drink-main"><div class="drink-name">Flamboyant Vieux Rum</div><div class="drink-meta">Menu price: MUR 525</div><div aria-label="Number of Flamboyant Vieux Rum drinks" class="drink-glasses" role="group"><button aria-label="1 Flamboyant Vieux Rum drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Flamboyant Vieux Rum drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Flamboyant Vieux Rum drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Flamboyant Vieux Rum drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Flamboyant Vieux Rum drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Flamboyant Vieux Rum as tried"><input aria-label="Mark Flamboyant Vieux Rum as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Flamboyant Vieux Rum as liked" aria-pressed="false" class="like-fire" title="Like Flamboyant Vieux Rum" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Ti-Rum Dark" data-search="rums island ti-rum dark"><div class="drink-main"><div class="drink-name">Ti-Rum Dark</div><div class="drink-meta">Menu price: MUR 485</div><div aria-label="Number of Ti-Rum Dark drinks" class="drink-glasses" role="group"><button aria-label="1 Ti-Rum Dark drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Ti-Rum Dark drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Ti-Rum Dark drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Ti-Rum Dark drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Ti-Rum Dark drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Ti-Rum Dark as tried"><input aria-label="Mark Ti-Rum Dark as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Ti-Rum Dark as liked" aria-pressed="false" class="like-fire" title="Like Ti-Rum Dark" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Green Island" data-search="rums island green island"><div class="drink-main"><div class="drink-name">Green Island</div><div class="drink-meta">Menu price: MUR 485</div><div aria-label="Number of Green Island drinks" class="drink-glasses" role="group"><button aria-label="1 Green Island drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Green Island drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Green Island drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Green Island drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Green Island drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Green Island as tried"><input aria-label="Mark Green Island as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Green Island as liked" aria-pressed="false" class="like-fire" title="Like Green Island" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Green Island Spiced Gold" data-search="rums island green island spiced gold"><div class="drink-main"><div class="drink-name">Green Island Spiced Gold</div><div class="drink-meta">Menu price: MUR 480</div><div aria-label="Number of Green Island Spiced Gold drinks" class="drink-glasses" role="group"><button aria-label="1 Green Island Spiced Gold drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Green Island Spiced Gold drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Green Island Spiced Gold drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Green Island Spiced Gold drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Green Island Spiced Gold drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Green Island Spiced Gold as tried"><input aria-label="Mark Green Island Spiced Gold as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Green Island Spiced Gold as liked" aria-pressed="false" class="like-fire" title="Like Green Island Spiced Gold" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Starr African" data-search="rums island starr african"><div class="drink-main"><div class="drink-name">Starr African</div><div class="drink-meta">Menu price: MUR 460</div><div aria-label="Number of Starr African drinks" class="drink-glasses" role="group"><button aria-label="1 Starr African drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Starr African drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Starr African drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Starr African drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Starr African drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Starr African as tried"><input aria-label="Mark Starr African as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Starr African as liked" aria-pressed="false" class="like-fire" title="Like Starr African" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Chamarel Gold" data-search="rums island chamarel gold"><div class="drink-main"><div class="drink-name">Chamarel Gold</div><div class="drink-meta">Menu price: MUR 600</div><div aria-label="Number of Chamarel Gold drinks" class="drink-glasses" role="group"><button aria-label="1 Chamarel Gold drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Chamarel Gold drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Chamarel Gold drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Chamarel Gold drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Chamarel Gold drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Chamarel Gold as tried"><input aria-label="Mark Chamarel Gold as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Chamarel Gold as liked" aria-pressed="false" class="like-fire" title="Like Chamarel Gold" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="category">Gin 4cl</div>
+<div class="drink" data-drink-id="Gilbey's" data-search="gin 4cl gilbeys"><div class="drink-main"><div class="drink-name">Gilbey's</div><div class="drink-meta">Menu price: MUR 500</div><div aria-label="Number of Gilbey's drinks" class="drink-glasses" role="group"><button aria-label="1 Gilbey's drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Gilbey's drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Gilbey's drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Gilbey's drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Gilbey's drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Gilbey's as tried"><input aria-label="Mark Gilbey's as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Gilbey's as liked" aria-pressed="false" class="like-fire" title="Like Gilbey's" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Rover" data-search="gin 4cl rover"><div class="drink-main"><div class="drink-name">Rover</div><div class="drink-meta">Menu price: MUR 400</div><div aria-label="Number of Rover drinks" class="drink-glasses" role="group"><button aria-label="1 Rover drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Rover drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Rover drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Rover drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Rover drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Rover as tried"><input aria-label="Mark Rover as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Rover as liked" aria-pressed="false" class="like-fire" title="Like Rover" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="category">Tequila 4cl</div>
+<div class="drink" data-drink-id="Don Ruiz" data-search="tequila 4cl don ruiz"><div class="drink-main"><div class="drink-name">Don Ruiz</div><div class="drink-meta">Menu price: MUR 500</div><div aria-label="Number of Don Ruiz drinks" class="drink-glasses" role="group"><button aria-label="1 Don Ruiz drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Don Ruiz drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Don Ruiz drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Don Ruiz drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Don Ruiz drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Don Ruiz as tried"><input aria-label="Mark Don Ruiz as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Don Ruiz as liked" aria-pressed="false" class="like-fire" title="Like Don Ruiz" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="category">Scotch Whisky 4cl</div>
+<div class="drink" data-drink-id="Johnnie Walker Red Label" data-search="scotch whisky johnnie walker red label"><div class="drink-main"><div class="drink-name">Johnnie Walker Red Label</div><div class="drink-meta">Menu price: MUR 850</div><div aria-label="Number of Johnnie Walker Red Label drinks" class="drink-glasses" role="group"><button aria-label="1 Johnnie Walker Red Label drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Johnnie Walker Red Label drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Johnnie Walker Red Label drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Johnnie Walker Red Label drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Johnnie Walker Red Label drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Johnnie Walker Red Label as tried"><input aria-label="Mark Johnnie Walker Red Label as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Johnnie Walker Red Label as liked" aria-pressed="false" class="like-fire" title="Like Johnnie Walker Red Label" type="button">🔥</button><div class="badge">AIP ✓</div></div><div class="drink" data-drink-id="Grant's 8 Years" data-search="scotch whisky grants grant's 8 years"><div class="drink-main"><div class="drink-name">Grant's 8 Years</div><div class="drink-meta">Menu price: MUR 700</div><div aria-label="Number of Grant's 8 Years drinks" class="drink-glasses" role="group"><button aria-label="1 Grant's 8 Years drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Grant's 8 Years drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Grant's 8 Years drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Grant's 8 Years drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Grant's 8 Years drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Grant's 8 Years as tried"><input aria-label="Mark Grant's 8 Years as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Grant's 8 Years as liked" aria-pressed="false" class="like-fire" title="Like Grant's 8 Years" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Cambridge" data-search="scotch whisky cambridge"><div class="drink-main"><div class="drink-name">Cambridge</div><div class="drink-meta">Menu price: MUR 430</div><div aria-label="Number of Cambridge drinks" class="drink-glasses" role="group"><button aria-label="1 Cambridge drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Cambridge drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Cambridge drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Cambridge drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Cambridge drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Cambridge as tried"><input aria-label="Mark Cambridge as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Cambridge as liked" aria-pressed="false" class="like-fire" title="Like Cambridge" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="category">Beers</div>
+<div class="drink" data-drink-id="Phoenix Bottle" data-search="beers phoenix bottle"><div class="drink-main"><div class="drink-name">Phoenix Bottle</div><div class="drink-meta">Menu price: MUR 420</div><div aria-label="Number of Phoenix Bottle drinks" class="drink-glasses" role="group"><button aria-label="1 Phoenix Bottle drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Phoenix Bottle drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Phoenix Bottle drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Phoenix Bottle drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Phoenix Bottle drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Phoenix Bottle as tried"><input aria-label="Mark Phoenix Bottle as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Phoenix Bottle as liked" aria-pressed="false" class="like-fire" title="Like Phoenix Bottle" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Phoenix Draught Small" data-search="beers phoenix draught small"><div class="drink-main"><div class="drink-name">Phoenix Draught Small</div><div class="drink-meta">Menu price: MUR 420</div><div aria-label="Number of Phoenix Draught Small drinks" class="drink-glasses" role="group"><button aria-label="1 Phoenix Draught Small drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Phoenix Draught Small drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Phoenix Draught Small drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Phoenix Draught Small drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Phoenix Draught Small drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Phoenix Draught Small as tried"><input aria-label="Mark Phoenix Draught Small as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Phoenix Draught Small as liked" aria-pressed="false" class="like-fire" title="Like Phoenix Draught Small" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Phoenix Draught Large" data-search="beers phoenix draught large"><div class="drink-main"><div class="drink-name">Phoenix Draught Large</div><div class="drink-meta">Menu price: MUR 560</div><div aria-label="Number of Phoenix Draught Large drinks" class="drink-glasses" role="group"><button aria-label="1 Phoenix Draught Large drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Phoenix Draught Large drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Phoenix Draught Large drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Phoenix Draught Large drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Phoenix Draught Large drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Phoenix Draught Large as tried"><input aria-label="Mark Phoenix Draught Large as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Phoenix Draught Large as liked" aria-pressed="false" class="like-fire" title="Like Phoenix Draught Large" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Blue Marlin Bottle" data-search="beers blue marlin bottle"><div class="drink-main"><div class="drink-name">Blue Marlin Bottle</div><div class="drink-meta">Menu price: MUR 420</div><div aria-label="Number of Blue Marlin Bottle drinks" class="drink-glasses" role="group"><button aria-label="1 Blue Marlin Bottle drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Blue Marlin Bottle drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Blue Marlin Bottle drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Blue Marlin Bottle drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Blue Marlin Bottle drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Blue Marlin Bottle as tried"><input aria-label="Mark Blue Marlin Bottle as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Blue Marlin Bottle as liked" aria-pressed="false" class="like-fire" title="Like Blue Marlin Bottle" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Thirsty Fox Local" data-search="beers thirsty fox local"><div class="drink-main"><div class="drink-name">Thirsty Fox Local</div><div class="drink-meta">Menu price: MUR 400</div><div aria-label="Number of Thirsty Fox Local drinks" class="drink-glasses" role="group"><button aria-label="1 Thirsty Fox Local drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Thirsty Fox Local drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Thirsty Fox Local drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Thirsty Fox Local drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Thirsty Fox Local drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Thirsty Fox Local as tried"><input aria-label="Mark Thirsty Fox Local as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Thirsty Fox Local as liked" aria-pressed="false" class="like-fire" title="Like Thirsty Fox Local" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Thirsty Fox Lager" data-search="beers thirsty fox lager"><div class="drink-main"><div class="drink-name">Thirsty Fox Lager</div><div class="drink-meta">Menu price: MUR 400</div><div aria-label="Number of Thirsty Fox Lager drinks" class="drink-glasses" role="group"><button aria-label="1 Thirsty Fox Lager drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Thirsty Fox Lager drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Thirsty Fox Lager drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Thirsty Fox Lager drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Thirsty Fox Lager drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Thirsty Fox Lager as tried"><input aria-label="Mark Thirsty Fox Lager as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Thirsty Fox Lager as liked" aria-pressed="false" class="like-fire" title="Like Thirsty Fox Lager" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Thirsty Fox Raspberry" data-search="beers thirsty fox raspberry"><div class="drink-main"><div class="drink-name">Thirsty Fox Raspberry</div><div class="drink-meta">Menu price: MUR 400</div><div aria-label="Number of Thirsty Fox Raspberry drinks" class="drink-glasses" role="group"><button aria-label="1 Thirsty Fox Raspberry drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Thirsty Fox Raspberry drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Thirsty Fox Raspberry drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Thirsty Fox Raspberry drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Thirsty Fox Raspberry drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Thirsty Fox Raspberry as tried"><input aria-label="Mark Thirsty Fox Raspberry as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Thirsty Fox Raspberry as liked" aria-pressed="false" class="like-fire" title="Like Thirsty Fox Raspberry" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+<div class="drink" data-drink-id="Guinness Bottle" data-search="beers guinness bottle"><div class="drink-main"><div class="drink-name">Guinness Bottle</div><div class="drink-meta">Menu price: MUR 410</div><div aria-label="Number of Guinness Bottle drinks" class="drink-glasses" role="group"><button aria-label="1 Guinness Bottle drink" aria-pressed="false" class="glass-btn" data-count="1" disabled="disabled" type="button">🥃</button><button aria-label="2 Guinness Bottle drinks" aria-pressed="false" class="glass-btn" data-count="2" disabled="disabled" type="button">🥃</button><button aria-label="3 Guinness Bottle drinks" aria-pressed="false" class="glass-btn" data-count="3" disabled="disabled" type="button">🥃</button><button aria-label="4 Guinness Bottle drinks" aria-pressed="false" class="glass-btn" data-count="4" disabled="disabled" type="button">🥃</button><button aria-label="5 Guinness Bottle drinks" aria-pressed="false" class="glass-btn" data-count="5" disabled="disabled" type="button">🥃</button></div></div><label class="tried-control" title="Mark Guinness Bottle as tried"><input aria-label="Mark Guinness Bottle as tried" class="tried-checkbox" type="checkbox"/><span aria-hidden="true" class="tried-check">✓</span><span class="tried-text">Tried</span></label><button aria-label="Mark Guinness Bottle as liked" aria-pressed="false" class="like-fire" title="Like Guinness Bottle" type="button">🔥</button><div class="badge">AIP ✓</div></div>
+</div>
+<div class="empty" id="emptyState">No matching drinks found.</div>
+<div class="note"><strong>Note:</strong> This page contains only drinks visibly marked <strong>+MUR 0.00</strong> under Extras: AIP. Ingredient lists are only shown where the English ingredients were visible in the screenshots; nothing has been guessed. Your tried-drink ticks are saved on this device using localStorage. The fire rating is also saved locally on this device. Each tried drink has five glass markers. Marking Tried activates the first glass; tap a later glass to record multiple drinks. Glass counts are stored in localStorage.</div>
+</main>
+<script>
+(() => {
+  const TRIED_STORAGE_KEY = 'turtleBayAipTriedDrinksV1';
+  const LIKED_STORAGE_KEY = 'turtleBayAipLikedDrinksV1';
+  const COUNT_STORAGE_KEY = 'turtleBayAipDrinkCountsV1';
+
+
+  function migratePineappleName() {
+    const oldId = 'Pineapple';
+    const newId = 'Pineapple Lemongrass';
+
+    [TRIED_STORAGE_KEY, LIKED_STORAGE_KEY].forEach(key => {
+      try {
+        const values = JSON.parse(localStorage.getItem(key) || '[]');
+        if (!Array.isArray(values) || !values.includes(oldId)) return;
+        const next = values.filter(v => v !== oldId);
+        if (!next.includes(newId)) next.push(newId);
+        localStorage.setItem(key, JSON.stringify(next));
+      } catch {}
+    });
+
+    try {
+      const values = JSON.parse(localStorage.getItem(COUNT_STORAGE_KEY) || '{}');
+      if (values && typeof values === 'object' && !Array.isArray(values) && oldId in values) {
+        if (!(newId in values)) values[newId] = values[oldId];
+        delete values[oldId];
+        localStorage.setItem(COUNT_STORAGE_KEY, JSON.stringify(values));
+      }
+    } catch {}
+  }
+
+  migratePineappleName();
+
+  const input = document.getElementById('searchInput');
+  const drinks = [...document.querySelectorAll('.drink')];
+  const categories = [...document.querySelectorAll('.category')];
+  const emptyState = document.getElementById('emptyState');
+  const triedCount = document.getElementById('triedCount');
+  const remainingCount = document.getElementById('remainingCount');
+  const progressFill = document.getElementById('progressFill');
+  const clearTried = document.getElementById('clearTried');
+  const filterPills = [...document.querySelectorAll('.filter-pill')];
+
+  let activeFilter = 'all';
+
+  function loadSet(key) {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(key) || '[]');
+      return new Set(Array.isArray(parsed) ? parsed : []);
+    } catch {
+      return new Set();
+    }
+  }
+
+  function saveSet(key, set) {
+    try {
+      localStorage.setItem(key, JSON.stringify([...set]));
+    } catch {}
+  }
+
+  function loadCounts() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(COUNT_STORAGE_KEY) || '{}');
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function saveCounts() {
+    try {
+      localStorage.setItem(COUNT_STORAGE_KEY, JSON.stringify(counts));
+    } catch {}
+  }
+
+  let tried = loadSet(TRIED_STORAGE_KEY);
+  let liked = loadSet(LIKED_STORAGE_KEY);
+  let counts = loadCounts();
+
+  // Preserve existing "Tried" selections from earlier versions.
+  tried.forEach(id => {
+    if (Number(counts[id] || 0) < 1) counts[id] = 1;
+  });
+  saveCounts();
+
+  function getCount(id) {
+    const n = Number(counts[id] || 0);
+    return Number.isFinite(n) ? Math.max(0, Math.min(5, Math.round(n))) : 0;
+  }
+
+  function setCount(id, value) {
+    const n = Math.max(0, Math.min(5, Math.round(Number(value) || 0)));
+    if (n === 0) delete counts[id];
+    else counts[id] = n;
+    saveCounts();
+  }
+
+  function refreshCard(card) {
+    const id = card.dataset.drinkId;
+    const checkbox = card.querySelector('.tried-checkbox');
+    const fire = card.querySelector('.like-fire');
+    const glassButtons = [...card.querySelectorAll('.glass-btn')];
+    const isTried = tried.has(id);
+
+    checkbox.checked = isTried;
+    card.classList.toggle('tried', isTried);
+
+    let count = getCount(id);
+
+    if (isTried && count < 1) {
+      count = 1;
+      setCount(id, 1);
+    }
+    if (!isTried && count > 0) {
+      count = 0;
+      setCount(id, 0);
+    }
+
+    glassButtons.forEach((btn, index) => {
+      const glassNo = index + 1;
+      btn.disabled = !isTried;
+      btn.setAttribute('aria-pressed', String(isTried && glassNo <= count));
+      btn.title = !isTried
+        ? 'Mark this drink as Tried first'
+        : `${glassNo} drink${glassNo > 1 ? 's' : ''}`;
+    });
+
+    const isLiked = liked.has(id);
+    fire.setAttribute('aria-pressed', String(isLiked));
+    fire.setAttribute(
+      'aria-label',
+      isLiked ? `Remove like from ${id}` : `Mark ${id} as liked`
+    );
+    fire.title = isLiked ? `Liked: ${id}` : `Like ${id}`;
+  }
+
+  function updateProgress() {
+    const count = drinks.filter(card => tried.has(card.dataset.drinkId)).length;
+    const total = drinks.length;
+    triedCount.textContent = String(count);
+    remainingCount.textContent = String(Math.max(0, total - count));
+    progressFill.style.width = total
+      ? `${Math.round((count / total) * 100)}%`
+      : '0%';
+  }
+
+  function applyFilters() {
+    const q = input.value.trim().toLowerCase();
+    let visibleCount = 0;
+
+    drinks.forEach(drink => {
+      const matchesSearch = drink.dataset.search.toLowerCase().includes(q);
+      const matchesStatus =
+        activeFilter === 'all' ||
+        (activeFilter === 'tried' && tried.has(drink.dataset.drinkId));
+
+      const show = matchesSearch && matchesStatus;
+      drink.classList.toggle('hidden', !show);
+      if (show) visibleCount++;
+    });
+
+    categories.forEach(cat => {
+      let el = cat.nextElementSibling;
+      let hasVisible = false;
+
+      while (el && !el.classList.contains('category')) {
+        if (el.classList.contains('drink') && !el.classList.contains('hidden')) {
+          hasVisible = true;
+          break;
+        }
+        el = el.nextElementSibling;
+      }
+
+      cat.classList.toggle('hidden', !hasVisible);
+    });
+
+    emptyState.textContent =
+      activeFilter === 'tried'
+        ? 'No tried drinks match this search.'
+        : 'No matching drinks found.';
+
+    emptyState.style.display = visibleCount ? 'none' : 'block';
+  }
+
+  drinks.forEach(card => {
+    refreshCard(card);
+
+    const checkbox = card.querySelector('.tried-checkbox');
+    checkbox.addEventListener('change', () => {
+      const id = card.dataset.drinkId;
+
+      if (checkbox.checked) {
+        tried.add(id);
+        if (getCount(id) < 1) setCount(id, 1);
+      } else {
+        tried.delete(id);
+        setCount(id, 0);
+      }
+
+      saveSet(TRIED_STORAGE_KEY, tried);
+      refreshCard(card);
+      updateProgress();
+      applyFilters();
+    });
+
+    const fire = card.querySelector('.like-fire');
+    fire.addEventListener('click', () => {
+      const id = card.dataset.drinkId;
+
+      if (liked.has(id)) liked.delete(id);
+      else liked.add(id);
+
+      saveSet(LIKED_STORAGE_KEY, liked);
+      refreshCard(card);
+    });
+
+    card.querySelectorAll('.glass-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = card.dataset.drinkId;
+        if (!tried.has(id)) return;
+
+        const clicked = Number(btn.dataset.count);
+        const current = getCount(id);
+
+        // Tapping glass N records N drinks.
+        // Tapping the current highest active glass subtracts one.
+        const next = clicked === current ? Math.max(1, current - 1) : clicked;
+
+        setCount(id, next);
+        refreshCard(card);
+      });
+    });
+  });
+
+  input.addEventListener('input', applyFilters);
+
+  filterPills.forEach(button => {
+    button.addEventListener('click', () => {
+      activeFilter = button.dataset.filter;
+
+      filterPills.forEach(pill => {
+        const isActive = pill === button;
+        pill.classList.toggle('active', isActive);
+        pill.setAttribute('aria-pressed', String(isActive));
+      });
+
+      applyFilters();
+    });
+  });
+
+  clearTried.addEventListener('click', () => {
+    if (!tried.size) return;
+
+    const ok = window.confirm(
+      'Clear all drinks marked as tried and their glass counts?'
+    );
+    if (!ok) return;
+
+    tried.clear();
+    counts = {};
+    saveSet(TRIED_STORAGE_KEY, tried);
+    saveCounts();
+
+    drinks.forEach(refreshCard);
+    updateProgress();
+    applyFilters();
+  });
+
+  updateProgress();
+  applyFilters();
+})();
+</script></body>
+</html>
